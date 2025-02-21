@@ -1,1 +1,1 @@
-![master](https://github.com/github/docs/actions/workflows/main.yml/badge.svg?branch=master)
+![master](https://github.com/mx-gp/user_crud/.github/workflows/go-build.yml /badge.svg?branch=master)

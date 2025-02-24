@@ -17,14 +17,14 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpassword
-          POSTGRES_DB: testdb
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U testuser"
-          --health-interval 10s
+          --health-cmd "pg_isready -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }}"
+          --health-interval 5s
           --health-timeout 5s
           --health-retries 5
 
@@ -35,26 +35,12 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.23.4  # Adjust the version as needed
+          go-version: 1.23.4
 
       - name: Install Dependencies
         run: go mod tidy
 
-      - name: Check PostgreSQL Status
-        run: |
-          echo "Checking if PostgreSQL is running..."
-          docker ps
-          pg_isready -h localhost -U testuser
-
-      - name: Wait for Database
-        run: |
-          echo "Waiting for PostgreSQL to be ready..."
-          until pg_isready -h localhost -U testuser; do
-            sleep 2
-          done
-          echo "PostgreSQL is ready!"
-
-      - name: Run All Tests
+      - name: Run Tests with Database
         env:
-          DATABASE_URL: postgres://testuser:testpassword@localhost:5432/testdb?sslmode=disable
+          DATABASE_URL: postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@localhost:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}?sslmode=disable
         run: go test -v ./...

@@ -1,15 +1,3 @@
-name: Go Build and Test with Database
-
-on:
-  push:
-    branches:
-      - "master"
-      - "develop"
-  pull_request:
-    branches:
-      - "master"
-      - "develop"
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -17,13 +5,13 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_USER: ${{ secrets.DB_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.DB_NAME }}
+          POSTGRES_USER: defaultuser
+          POSTGRES_PASSWORD: defaultpassword
+          POSTGRES_DB: defaultdb
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }}"
+          --health-cmd "pg_isready -U defaultuser -d defaultdb"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 5
@@ -40,7 +28,22 @@ jobs:
       - name: Install Dependencies
         run: go mod tidy
 
+      - name: Wait for PostgreSQL to Start
+        run: sleep 10  # Wait for PostgreSQL to be fully ready
+
+      - name: Update PostgreSQL Credentials Securely
+        run: |
+          PGPASSWORD=defaultpassword psql -U defaultuser -d defaultdb -h localhost -p 5432 <<EOF
+          ALTER USER defaultuser RENAME TO "${{ secrets.DB_USER }}";
+          ALTER USER "${{ secrets.DB_USER }}" WITH PASSWORD '${{ secrets.DB_PASSWORD }}';
+          ALTER DATABASE defaultdb RENAME TO "${{ secrets.DB_NAME }}";
+          EOF
+
       - name: Run Tests with Database
         env:
-          DATABASE_URL: postgres://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@localhost:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}?sslmode=disable
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_HOST: localhost
+          DB_PORT: "5432"
         run: go test -v ./...

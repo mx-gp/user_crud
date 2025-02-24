@@ -2,6 +2,9 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
+	"log"
+	"os"
 	"testing"
 
 	"user_crud/config"
@@ -11,10 +14,19 @@ import (
 
 func setupTestDB() {
 	// Initialize the test database connection
+	// Database connection string
+	dbURL := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASS"),
+		os.Getenv("DB_NAME"))
+
+	// Open connection
 	var err error
-	config.DB, err = sql.Open("postgres", "host=127.0.0.1 port=5432 user=mx dbname=crud_db sslmode=disable")
+	config.DB, err = sql.Open("postgres", dbURL)
 	if err != nil {
-		panic(err)
+		log.Fatal("Failed to connect to database:", err)
 	}
 
 	// Create a test table (optional)

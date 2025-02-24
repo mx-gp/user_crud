@@ -26,6 +26,16 @@ func setupTestDB() {
 	if err != nil {
 		panic(err)
 	}
+
+	// Create a test table (optional)
+	_, err = config.DB.Exec(`
+		CREATE TABLE IF NOT EXISTS users (
+			id SERIAL PRIMARY KEY,
+			name VARCHAR(100),
+			email VARCHAR(100) UNIQUE,
+			age INT
+		);
+	`)
 }
 
 func teardownTestDB() {

@@ -28,7 +28,7 @@ func setupTestDB() {
 	}
 
 	// Create a test table (optional)
-	_, err = config.DB.Exec(`
+	r, err := config.DB.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
 			id SERIAL PRIMARY KEY,
 			name VARCHAR(100),
@@ -36,6 +36,10 @@ func setupTestDB() {
 			age INT
 		);
 	`)
+	fmt.Println(r.RowsAffected())
+	if err != nil {
+		panic(err)
+	}
 }
 
 func teardownTestDB() {

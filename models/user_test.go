@@ -3,7 +3,6 @@ package models
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 	"testing"
 
@@ -13,31 +12,17 @@ import (
 )
 
 func setupTestDB() {
-	// Initialize the test database connection
-	// Database connection string
-	dbURL := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASS"),
-		os.Getenv("DB_NAME"))
+	dbUser := os.Getenv("DB_USER")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
 
-	// Open connection
+	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		dbHost, dbPort, dbUser, dbPassword, dbName)
+
 	var err error
-	config.DB, err = sql.Open("postgres", dbURL)
-	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
-	}
-
-	// Create a test table (optional)
-	_, err = config.DB.Exec(`
-		CREATE TABLE IF NOT EXISTS users (
-			id SERIAL PRIMARY KEY,
-			name VARCHAR(100),
-			email VARCHAR(100) UNIQUE,
-			age INT
-		);
-	`)
+	config.DB, err = sql.Open("postgres", dsn)
 	if err != nil {
 		panic(err)
 	}

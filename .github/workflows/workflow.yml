@@ -47,7 +47,6 @@ jobs:
         run: |
           PGPASSWORD=postgres psql -U postgres -d testdb -h localhost -p 5432 <<EOF
           CREATE USER "${{ secrets.DB_USER }}" WITH PASSWORD '${{ secrets.DB_PASSWORD }}';
-          CREATE DATABASE "${{ secrets.DB_NAME }}" OWNER "${{ secrets.DB_USER }}";
           GRANT ALL PRIVILEGES ON DATABASE "${{ secrets.DB_NAME }}" TO "${{ secrets.DB_USER }}";
           EOF
 

@@ -3,32 +3,44 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
+	"strings"
 	"testing"
 
 	"user_crud/config"
 
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq" // PostgreSQL driver
 )
 
 func setupTestDB() {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+	dir := strings.Replace(currentDir, "/models", "", 1)
+
+	// Load environment variables
+	err = godotenv.Load(dir + "/.env")
+	if err != nil {
+		log.Fatal("Error loading .env file: ", err)
+	}
 	dbUser := os.Getenv("DB_USER")
-	dbPassword := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
 	dbHost := os.Getenv("DB_HOST")
 	dbPort := os.Getenv("DB_PORT")
 
-	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		dbHost, dbPort, dbUser, dbPassword, dbName)
-
-	var err error
+	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable",
+		dbHost, dbPort, dbUser, dbName)
+	fmt.Printf("%+v", dsn)
 	config.DB, err = sql.Open("postgres", dsn)
 	if err != nil {
 		panic(err)
 	}
 
 	// Create a test table (optional)
-	r, err := config.DB.Exec(`
+	_, err = config.DB.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
 			id SERIAL PRIMARY KEY,
 			name VARCHAR(100),
@@ -36,7 +48,7 @@ func setupTestDB() {
 			age INT
 		);
 	`)
-	fmt.Println(r.RowsAffected())
+	// fmt.Println(r.RowsAffected())
 	if err != nil {
 		panic(err)
 	}
@@ -63,6 +75,12 @@ func TestCreateUser(t *testing.T) {
 	if err != nil || count != 1 {
 		t.Errorf("User was not inserted into the database")
 	}
+
+	// Delete user
+	err = DeleteUser(user.ID)
+	if err != nil {
+		t.Errorf("Failed to delete user: %v", err)
+	}
 }
 
 func TestGetAllUsers(t *testing.T) {
@@ -79,6 +97,14 @@ func TestGetAllUsers(t *testing.T) {
 
 	if len(users) < 2 {
 		t.Errorf("Expected at least 2 users, got %d", len(users))
+	}
+
+	for _, user := range users {
+		// Delete user
+		err = DeleteUser(user.ID)
+		if err != nil {
+			t.Errorf("Failed to delete user: %v", err)
+		}
 	}
 }
 
@@ -97,6 +123,11 @@ func TestGetUserByID(t *testing.T) {
 
 	if user.Email != "david@example.com" {
 		t.Errorf("Expected email 'david@example.com', got %s", user.Email)
+	}
+	// Delete user
+	err = DeleteUser(id)
+	if err != nil {
+		t.Errorf("Failed to delete user: %v", err)
 	}
 }
 
@@ -122,6 +153,12 @@ func TestUpdateUser(t *testing.T) {
 
 	if name != "Eve Adams" || age != 30 {
 		t.Errorf("User was not updated correctly: got name=%s, age=%d", name, age)
+	}
+
+	// Delete user
+	err = DeleteUser(id)
+	if err != nil {
+		t.Errorf("Failed to delete user: %v", err)
 	}
 }
 

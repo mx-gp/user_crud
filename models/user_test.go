@@ -28,11 +28,12 @@ func setupTestDB() {
 	}
 	dbUser := os.Getenv("DB_USER")
 	dbName := os.Getenv("DB_NAME")
+	dbPassword := os.Getenv("DB_PASSWORD")
 	dbHost := os.Getenv("DB_HOST")
 	dbPort := os.Getenv("DB_PORT")
 
-	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable",
-		dbHost, dbPort, dbUser, dbName)
+	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		dbHost, dbPort, dbUser, dbPassword, dbName)
 	fmt.Printf("%+v", dsn)
 	config.DB, err = sql.Open("postgres", dsn)
 	if err != nil {

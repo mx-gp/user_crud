@@ -1,0 +1,55 @@
+name: Go Build and Test with Database
+
+on:
+  push:
+    branches:
+      - "master"
+      - "develop"
+  pull_request:
+    branches:
+      - "master"
+      - "develop"
+      
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d testdb"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+ 
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23.4
+        
+      - name: Install Dependencies
+        run: go mod tidy
+        
+      - name: Wait for PostgreSQL to Start
+        run: sleep 10  # Ensure PostgreSQL is fully initialized
+        
+      - name: Create .env file for testing
+        run: |
+          echo "DB_USER=postgres" > .env
+          echo "DB_PASSWORD=postgres" >> .env
+          echo "DB_NAME=testdb" >> .env
+          echo "DB_HOST=localhost" >> .env
+          echo "DB_PORT=5432" >> .env
+        
+      - name: Run Tests with Database
+        run: go test -v ./...

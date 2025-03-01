@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 	"user_crud/models"
+	"user_crud/repository"
 	"user_crud/utils"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +18,7 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	err := models.CreateUser(user)
+	err := repository.CreateUser(user)
 	if err != nil {
 		utils.SendErrorResponse(c, http.StatusInternalServerError, "Failed to create user")
 		return
@@ -28,7 +29,7 @@ func CreateUser(c *gin.Context) {
 
 // Get All Users
 func GetAllUsers(c *gin.Context) {
-	users, err := models.GetAllUsers()
+	users, err := repository.GetAllUsers()
 	if err != nil {
 		utils.SendErrorResponse(c, http.StatusInternalServerError, "Failed to fetch users")
 		return
@@ -39,7 +40,7 @@ func GetAllUsers(c *gin.Context) {
 // Get User by ID
 func GetUserByID(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	user, err := models.GetUserByID(id)
+	user, err := repository.GetUserByID(id)
 	if err != nil {
 		utils.SendErrorResponse(c, http.StatusNotFound, "User not found")
 		return
@@ -55,7 +56,7 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	err := models.UpdateUser(user)
+	err := repository.UpdateUser(user)
 	if err != nil {
 		utils.SendErrorResponse(c, http.StatusInternalServerError, "Failed to update user")
 		return
@@ -68,7 +69,7 @@ func UpdateUser(c *gin.Context) {
 func DeleteUser(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	err := models.DeleteUser(id)
+	err := repository.DeleteUser(id)
 	if err != nil {
 		utils.SendErrorResponse(c, http.StatusInternalServerError, "Failed to delete user")
 		return

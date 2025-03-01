@@ -1,7 +1,8 @@
-package main
+package cmd
 
 import (
 	"user_crud/config"
+	"user_crud/routes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +14,7 @@ func main() {
 	config.ConnectDB()
 
 	// Register Routes
-	UserRoutes(r)
+	routes.UserRoutes(r)
 
 	// Start Server
 	r.Run(":8080")

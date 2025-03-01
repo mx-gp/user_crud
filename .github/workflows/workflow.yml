@@ -47,7 +47,7 @@ jobs:
           echo "DB_HOST=localhost" >> .env
           echo "DB_PORT=5432" >> .env
           echo "DB_USER=postgres" >> .env
-          echo "DB_PASS=postgres" >> .env
+          echo "DB_PASSWORD=postgres" >> .env
           echo "DB_NAME=userdb" >> .env
 
       - name: Run Tests
@@ -56,6 +56,6 @@ jobs:
           DB_HOST: localhost
           DB_PORT: 5432
           DB_USER: postgres
-          DB_PASS: postgres
+          DB_PASSWORD: postgres
           DB_NAME: userdb
         run: go test ./tests/ -v

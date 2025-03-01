@@ -41,7 +41,7 @@ jobs:
       - name: Install Dependencies
         run: go mod tidy
 
-      - name: Create .env file for Testing  # 🔹 Added step to create .env
+      - name: Create .env file for Testing 
         run: |
           echo "JWT_SECRET=testsecret" > .env
           echo "DB_HOST=localhost" >> .env

@@ -1,4 +1,4 @@
-package main
+package routes
 
 import (
 	"user_crud/controllers"

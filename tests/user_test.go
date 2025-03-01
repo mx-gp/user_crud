@@ -21,7 +21,7 @@ func setupTestDB() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	dir := strings.Replace(currentDir, "/models", "", 1)
+	dir := strings.Replace(currentDir, "/tests", "", 1)
 	fmt.Println("PRint: ", dir)
 	// Load environment variables
 	err = godotenv.Load(dir + "/.env")

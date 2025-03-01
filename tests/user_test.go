@@ -1,4 +1,4 @@
-package models
+package tests
 
 import (
 	"database/sql"
@@ -9,6 +9,8 @@ import (
 	"testing"
 
 	"user_crud/config"
+	"user_crud/models"
+	"user_crud/repository"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq" // PostgreSQL driver
@@ -65,8 +67,8 @@ func TestCreateUser(t *testing.T) {
 	setupTestDB()
 	defer teardownTestDB()
 
-	user := User{Name: "Alice", Email: "alice@example.com", Age: 28}
-	err := CreateUser(user)
+	user := models.User{Name: "Alice", Email: "alice@example.com", Age: 28}
+	err := repository.CreateUser(user)
 	if err != nil {
 		t.Errorf("Failed to create user: %v", err)
 	}
@@ -78,7 +80,7 @@ func TestCreateUser(t *testing.T) {
 	}
 
 	// Delete user
-	err = DeleteUser(user.ID)
+	err = repository.DeleteUser(user.ID)
 	if err != nil {
 		t.Errorf("Failed to delete user: %v", err)
 	}
@@ -91,7 +93,7 @@ func TestGetAllUsers(t *testing.T) {
 	// Insert test users
 	config.DB.Exec("INSERT INTO users (name, email, age) VALUES ('Bob', 'bob@example.com', 25), ('Charlie', 'charlie@example.com', 29)")
 
-	users, err := GetAllUsers()
+	users, err := repository.GetAllUsers()
 	if err != nil {
 		t.Errorf("Failed to fetch users: %v", err)
 	}
@@ -102,7 +104,7 @@ func TestGetAllUsers(t *testing.T) {
 
 	for _, user := range users {
 		// Delete user
-		err = DeleteUser(user.ID)
+		err = repository.DeleteUser(user.ID)
 		if err != nil {
 			t.Errorf("Failed to delete user: %v", err)
 		}
@@ -117,7 +119,7 @@ func TestGetUserByID(t *testing.T) {
 	var id int
 	config.DB.QueryRow("INSERT INTO users (name, email, age) VALUES ('David', 'david@example.com', 40) RETURNING id").Scan(&id)
 
-	user, err := GetUserByID(id)
+	user, err := repository.GetUserByID(id)
 	if err != nil {
 		t.Errorf("Failed to get user by ID: %v", err)
 	}
@@ -126,7 +128,7 @@ func TestGetUserByID(t *testing.T) {
 		t.Errorf("Expected email 'david@example.com', got %s", user.Email)
 	}
 	// Delete user
-	err = DeleteUser(id)
+	err = repository.DeleteUser(id)
 	if err != nil {
 		t.Errorf("Failed to delete user: %v", err)
 	}
@@ -141,8 +143,8 @@ func TestUpdateUser(t *testing.T) {
 	config.DB.QueryRow("INSERT INTO users (name, email, age) VALUES ('Eve', 'eve@example.com', 22) RETURNING id").Scan(&id)
 
 	// Update the user
-	updatedUser := User{ID: id, Name: "Eve Adams", Email: "eve@example.com", Age: 30}
-	err := UpdateUser(updatedUser)
+	updatedUser := models.User{ID: id, Name: "Eve Adams", Email: "eve@example.com", Age: 30}
+	err := repository.UpdateUser(updatedUser)
 	if err != nil {
 		t.Errorf("Failed to update user: %v", err)
 	}
@@ -157,7 +159,7 @@ func TestUpdateUser(t *testing.T) {
 	}
 
 	// Delete user
-	err = DeleteUser(id)
+	err = repository.DeleteUser(id)
 	if err != nil {
 		t.Errorf("Failed to delete user: %v", err)
 	}
@@ -172,7 +174,7 @@ func TestDeleteUser(t *testing.T) {
 	config.DB.QueryRow("INSERT INTO users (name, email, age) VALUES ('Frank', 'frank@example.com', 45) RETURNING id").Scan(&id)
 
 	// Delete user
-	err := DeleteUser(id)
+	err := repository.DeleteUser(id)
 	if err != nil {
 		t.Errorf("Failed to delete user: %v", err)
 	}

@@ -41,6 +41,15 @@ jobs:
       - name: Install Dependencies
         run: go mod tidy
 
+      - name: Create .env file for Testing  # 🔹 Added step to create .env
+        run: |
+          echo "JWT_SECRET=testsecret" > .env
+          echo "DB_HOST=localhost" >> .env
+          echo "DB_PORT=5432" >> .env
+          echo "DB_USER=postgres" >> .env
+          echo "DB_PASS=postgres" >> .env
+          echo "DB_NAME=userdb" >> .env
+
       - name: Run Tests
         env:
           JWT_SECRET: testsecret

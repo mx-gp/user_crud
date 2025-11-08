@@ -1,1 +1,4 @@
 .env
+.galus.toml
+go.mod
+go.sum
